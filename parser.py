@@ -38,8 +38,12 @@ class NietzscheParser:
         
         soup = BeautifulSoup(html, 'html.parser')
 
-        whitelist = ['p', 'span']
+        # Remove errata divs first to avoid nesting problems in the main loop
+        errata = soup.find_all('div', { 'class': 'tooltip' })
+        for erratum in errata:
+            erratum.decompose()
 
+        whitelist = ['p', 'span']
         for tag in soup.find_all(True):
             if tag.name not in whitelist:
             # There shouldn't be any cases where we want to keep link text, so remove <a> tags along with their contents.
