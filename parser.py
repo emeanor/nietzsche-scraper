@@ -29,7 +29,13 @@ class NietzscheParser:
 
     @classmethod
     def text(self, block):
-        html = re.sub(' +', ' ', block.get_attribute('innerHTML').replace('\n', '').strip())
+        html = block.get_attribute('innerHTML')
+
+        # Remove newlines and leading/trailing whitespace.
+        html = html.replace('\n', '').strip()
+        # Replace multiple whitespace characters with a single one.
+        html = re.sub(' +', ' ', html)
+        
         soup = BeautifulSoup(html, 'html.parser')
 
         whitelist = ['p', 'span']
