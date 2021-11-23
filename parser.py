@@ -29,16 +29,10 @@ class NietzscheParser:
 
     @classmethod
     def text(self, block):
-        html = block.get_attribute('innerHTML')
-
-        # Remove newlines and leading/trailing whitespace.
-        html = html.replace('\n', '').strip()
-        # Replace multiple whitespace characters with a single one.
-        html = re.sub(' +', ' ', html)
-        
+        html = block.get_attribute('innerHTML').strip().replace('\n', '')
         soup = BeautifulSoup(html, 'html.parser')
 
-        # Remove errata divs first to avoid nesting problems in the main loop.
+        # Remove errata tooltip divs first to avoid nesting problems in the main loop.
         errata = soup.find_all('div', { 'class': 'tooltip' })
         for erratum in errata:
             erratum.decompose()
@@ -46,19 +40,18 @@ class NietzscheParser:
         whitelist = ['p', 'span']
         for tag in soup.find_all(True):
             if tag.name not in whitelist:
+                # There is never a need to retain link text.
                 tag.decompose() if tag.name == 'a' else tag.unwrap()
             else:
                 if tag.name == 'p':
                     tag.insert_after('\n')
                     tag.unwrap()
                 elif tag.name == 'span':
-                    # The 'bold' class on NietzscheSource corresponds to italics.
                     if tag.has_attr('class') and 'bold' in tag['class']:
                         tag.string = tag.string.strip()
                         tag.insert_before(' *')
                         tag.insert_after('* ')
                         tag.unwrap()
-                    # The 'bolditalic' class on NietzscheSource corresponds to boldface.
                     elif tag.has_attr('class') and 'bolditalic' in tag['class']:
                         tag.string = tag.string.strip()
                         tag.insert_before(' **')
@@ -72,7 +65,7 @@ class NietzscheParser:
         # Remove repeated whitespace characters created by markdown parsing.
         text = re.sub(' +', ' ', text)
 
-        # Remove whitespace between asterisks and punctuation marks.
+        # Remove whitespace between asterisks and certain punctuation marks.
         text = re.sub('\*\s([.,:)])', '*\\1', text)
 
         return text
