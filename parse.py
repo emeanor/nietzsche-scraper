@@ -38,6 +38,9 @@ def text(block):
             tag.decompose() if tag.name == 'a' else tag.unwrap()
         else:
             if tag.name == 'p':
+                if tag.has_attr('class') and 'Zentriert' in tag['class']:
+                    tag.insert_before('# ')
+
                 tag.insert_after('\n')
                 tag.unwrap()
             elif tag.name == 'span':
