@@ -38,7 +38,7 @@ class NietzscheParser:
         
         soup = BeautifulSoup(html, 'html.parser')
 
-        # Remove errata divs first to avoid nesting problems in the main loop
+        # Remove errata divs first to avoid nesting problems in the main loop.
         errata = soup.find_all('div', { 'class': 'tooltip' })
         for erratum in errata:
             erratum.decompose()
@@ -46,7 +46,6 @@ class NietzscheParser:
         whitelist = ['p', 'span']
         for tag in soup.find_all(True):
             if tag.name not in whitelist:
-            # There shouldn't be any cases where we want to keep link text, so remove <a> tags along with their contents.
                 tag.decompose() if tag.name == 'a' else tag.unwrap()
             else:
                 if tag.name == 'p':
@@ -56,17 +55,24 @@ class NietzscheParser:
                     # The 'bold' class on NietzscheSource corresponds to italics.
                     if tag.has_attr('class') and 'bold' in tag['class']:
                         tag.string = tag.string.strip()
-                        tag.insert_before('*')
-                        tag.insert_after('*')
+                        tag.insert_before(' *')
+                        tag.insert_after('* ')
                         tag.unwrap()
                     # The 'bolditalic' class on NietzscheSource corresponds to boldface.
                     elif tag.has_attr('class') and 'bolditalic' in tag['class']:
                         tag.string = tag.string.strip()
-                        tag.insert_before('**')
-                        tag.insert_after('**')
+                        tag.insert_before(' **')
+                        tag.insert_after('** ')
                         tag.unwrap()
                     else:
                         tag.unwrap()
-            
-        return soup
 
+        text = str(soup)
+
+        # Remove repeated whitespace characters created by markdown parsing.
+        text = re.sub(' +', ' ', text)
+
+        # Remove whitespace between asterisks and punctuation marks.
+        text = re.sub('\*\s([.,:)])', '*\\1', text)
+
+        return text
