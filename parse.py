@@ -8,11 +8,7 @@ def nietzsche_number(block):
     '''
     # Find the first instances in the text where 1-3 digits are set in parentheses.
     parenthetical_digits = re.search(r'\(\d{1,3}?\)', block.text)
-    
-    if parenthetical_digits:
-        nietzsche_number = parenthetical_digits.group().strip('()')
-    else:
-        nietzsche_number = None
+    nietzsche_number = parenthetical_digits.group().strip('()') if parenthetical_digits else None
 
     return nietzsche_number
 
