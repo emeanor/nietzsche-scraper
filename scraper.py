@@ -21,9 +21,5 @@ class NietzscheScraper:
         self.driver.get(f'http://nietzschesource.org/#eKGWB/NF-{year},{notebook_number}')
         elements = self.driver.find_elements(By.CLASS_NAME, 'txt_block')
 
-        blocks = []
-        for element in elements:
-            if element.text.startswith(str(notebook_number)):
-                blocks.append(element)
-
+        blocks = list(filter(lambda element: element.text.startswith(str(notebook_number)), elements))
         return blocks
