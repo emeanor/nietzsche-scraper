@@ -23,7 +23,7 @@ class NietzscheScraper:
 
         blocks = []
         for element in elements:
-            if element.text[0] == str(notebook_number):
+            if element.text.startswith(str(notebook_number)):
                 blocks.append(element)
 
         return blocks
