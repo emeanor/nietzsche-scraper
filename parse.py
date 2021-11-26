@@ -1,7 +1,23 @@
 from bs4 import BeautifulSoup
 import re
 
-def nietzsche_number(block):
+def all(block, outline_only=True):
+    nietzsche_number = parse_nietzsche_number(block)
+
+    if outline_only and nietzsche_number is None:
+        return
+
+    kgw_numbers = parse_kgw_numbers(block)
+    text = parse_text(block)
+
+    return {
+        'nietzsche_number': nietzsche_number,
+        'kgw_notebook_number': kgw_numbers[0],
+        'kgw_text_number': kgw_numbers[1],
+        'text': text
+    }
+
+def parse_nietzsche_number(block):
     '''
     Find the first instance in the text where 1-3 digits are set in parentheses.
     This is not perfect, as the odd text (e.g., 9[1]) contains more than one
@@ -12,13 +28,13 @@ def nietzsche_number(block):
 
     return nietzsche_number
 
-def kgw_numbers(block):
+def parse_kgw_numbers(block):
     text = block.text
     notebook_number = int(text[0 : text.index('[')])
     text_number = int(text[text.index('[') + 1 : text.index(']')])
     return (notebook_number, text_number)
 
-def text(block):
+def parse_text(block):
     html = block.get_attribute('innerHTML').replace('\n', '')
     soup = BeautifulSoup(html, 'html.parser')
 
