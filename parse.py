@@ -19,7 +19,7 @@ def kgw_numbers(block):
     return (notebook_number, text_number)
 
 def text(block):
-    html = block.get_attribute('innerHTML').strip().replace('\n', '')
+    html = block.get_attribute('innerHTML').replace('\n', '')
     soup = BeautifulSoup(html, 'html.parser')
 
     # Remove errata tooltip divs first to avoid nesting problems in the main loop.
@@ -62,5 +62,7 @@ def text(block):
 
     # Remove whitespace between asterisks and certain punctuation marks.
     text = re.sub('\*\s([.,:)])', '*\\1', text)
+
+    text = text.strip()
 
     return text

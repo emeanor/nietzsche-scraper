@@ -12,14 +12,14 @@ class NietzscheScraper:
         self.driver = webdriver.Chrome(options=chrome_options)
 
     def scrape_text(self, year, notebook_number, text_number):
-        print('Collecting text...')
+        print(f'Collecting notebook {notebook_number}...')
         self.driver.get(f'http://nietzschesource.org/#eKGWB/NF-{year},{notebook_number}')
 
         block = self.driver.find_element(By.ID, f'eKGWB/NF-{year},{notebook_number}[{text_number}]')
         return block
 
     def scrape_notebook(self, year, notebook_number):
-        print('Collecting notebook...')
+        print(f'Collecting notebook {notebook_number}...')
         self.driver.get(f'http://nietzschesource.org/#eKGWB/NF-{year},{notebook_number}')
 
         elements = self.driver.find_elements(By.CLASS_NAME, 'txt_block')
