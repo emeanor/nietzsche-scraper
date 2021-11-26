@@ -42,12 +42,12 @@ def text(block):
                 tag.unwrap()
             # Render italics and boldface in Markdown.
             elif tag.name == 'span':
-                if tag.has_attr('class') and 'bold' in tag['class']:
+                if tag.string and tag.has_attr('class') and 'bold' in tag['class']:
                     tag.string = tag.string.strip()
                     tag.insert_before(' *')
                     tag.insert_after('* ')
                     tag.unwrap()
-                elif tag.has_attr('class') and 'bolditalic' in tag['class']:
+                elif tag.string and tag.has_attr('class') and 'bolditalic' in tag['class']:
                     tag.string = tag.string.strip()
                     tag.insert_before(' **')
                     tag.insert_after('** ')
