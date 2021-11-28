@@ -1,19 +1,23 @@
 from bs4 import BeautifulSoup
 import re
 
-def all(block, outline_only=True):
+def all(block, outline, outline_only=True):
     nietzsche_number = parse_nietzsche_number(block)
 
     if outline_only and nietzsche_number is None:
         return
 
     kgw_numbers = parse_kgw_numbers(block)
+    book_number = outline[nietzsche_number].get('book_number')
+    title = outline[nietzsche_number].get('title')
     text = parse_text(block)
 
     return {
         'nietzsche_number': nietzsche_number,
         'kgw_notebook_number': kgw_numbers[0],
         'kgw_text_number': kgw_numbers[1],
+        'book_number': book_number,
+        'title': title,
         'text': text
     }
 
@@ -89,21 +93,19 @@ def parse_outline(outline):
 
     rows = soup.find_all('tr')
 
-    entries = []
+    entries = {}
     for row in rows:
         paragraphs = row.findChildren('p')
-        entry = {}
 
         try:
             nietzsche_number = int(paragraphs[0].text.replace(u'\xa0', '').strip('()'))
-            entry['nietzsche_number'] = nietzsche_number
         except:
-            print(f'Unable to parse nietzsche_number from: {paragraphs[0].text}')
+            nietzsche_number = None
 
         try:
-            entry['title'] = paragraphs[1].text
+            title = paragraphs[1].text
         except:
-            print('Line contains no title. Skipping.')
+            title = None
 
         try:
             if paragraphs[2].text == 'I':
@@ -114,11 +116,15 @@ def parse_outline(outline):
                 book_number = 3
             elif paragraphs[2].text == 'IV':
                 book_number = 4
-
-            entry['book_number'] = book_number
+            else:
+                book_number = None
         except:
-            print('No book number for this entry.')
+            book_number = None
 
-        entries.append(entry)
+        if nietzsche_number is not None:
+            entries[nietzsche_number] = {
+                    'title': title,
+                    'book_number': book_number
+                }
 
     return entries
