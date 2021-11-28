@@ -97,17 +97,14 @@ def parse_outline(outline):
     for row in rows:
         paragraphs = row.findChildren('p')
 
-        try:
+        try: 
             nietzsche_number = int(paragraphs[0].text.replace(u'\xa0', '').strip('()'))
         except:
-            nietzsche_number = None
+            pass
 
-        try:
-            title = paragraphs[1].text
-        except:
-            title = None
+        title = paragraphs[1].text if len(paragraphs) > 1 else None
 
-        try:
+        if len(paragraphs) > 2:
             if paragraphs[2].text == 'I':
                 book_number = 1
             elif paragraphs[2].text == 'II':
@@ -118,8 +115,6 @@ def parse_outline(outline):
                 book_number = 4
             else:
                 book_number = None
-        except:
-            book_number = None
 
         if nietzsche_number is not None:
             entries[nietzsche_number] = {
