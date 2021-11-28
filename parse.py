@@ -82,3 +82,43 @@ def parse_text(block):
     text = text.strip()
 
     return text
+
+def parse_outline(outline):
+    html = outline.get_attribute('innerHTML')
+    soup = BeautifulSoup(html, 'html.parser')
+
+    rows = soup.find_all('tr')
+
+    entries = []
+    for row in rows:
+        paragraphs = row.findChildren('p')
+        entry = {}
+
+        try:
+            nietzsche_number = int(paragraphs[0].text.replace(u'\xa0', '').strip('()'))
+            entry['nietzsche_number'] = nietzsche_number
+        except:
+            print(f'Unable to parse nietzsche_number from: {paragraphs[0].text}')
+
+        try:
+            entry['title'] = paragraphs[1].text
+        except:
+            print('Line contains no title. Skipping.')
+
+        try:
+            if paragraphs[2].text == 'I':
+                book_number = 1
+            elif paragraphs[2].text == 'II':
+                book_number = 2
+            elif paragraphs[2].text == 'III':
+                book_number = 3
+            elif paragraphs[2].text == 'IV':
+                book_number = 4
+
+            entry['book_number'] = book_number
+        except:
+            print('No book number for this entry.')
+
+        entries.append(entry)
+
+    return entries

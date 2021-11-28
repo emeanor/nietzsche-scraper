@@ -26,3 +26,6 @@ class NietzscheScraper:
         blocks = list(filter(lambda element: element.text.startswith(str(notebook_number)), elements))
 
         return blocks
+
+    def scrape_outline(self):
+        return self.scrape_text(1888, 12, 1)
