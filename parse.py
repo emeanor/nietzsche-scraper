@@ -24,7 +24,7 @@ def parse_nietzsche_number(block):
     Nietzsche number. It saves a great deal of manual work though.
     '''
     parenthetical_digits = re.search(r'\(\d{1,3}?\)', block.text)
-    nietzsche_number = parenthetical_digits.group().strip('()') if parenthetical_digits else None
+    nietzsche_number = int(parenthetical_digits.group().strip('()')) if parenthetical_digits else None
 
     return nietzsche_number
 
