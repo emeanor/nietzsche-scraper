@@ -38,6 +38,19 @@ def parse_kgw_numbers(block):
     text_number = int(text[text.index('[') + 1 : text.index(']')])
     return (notebook_number, text_number)
 
+def parse_markdown(tag):
+    if tag.name == 'span':
+        if tag.string and tag.has_attr('class') and 'bold' in tag['class']:
+            tag.string = tag.string.strip()
+            tag.insert_before(' *')
+            tag.insert_after('* ')
+        elif tag.string and tag.has_attr('class') and 'bolditalic' in tag['class']:
+            tag.string = tag.string.strip()
+            tag.insert_before(' **')
+            tag.insert_after('** ')
+
+        tag.unwrap()
+
 def parse_text(block):
     html = block.get_attribute('innerHTML').replace('\n', '')
     soup = BeautifulSoup(html, 'html.parser')
@@ -81,45 +94,64 @@ def parse_text(block):
     text = re.sub(' +', ' ', text)
 
     # Remove whitespace between asterisks and certain punctuation marks.
-    text = re.sub('\*\s([.,:)])', '*\\1', text)
+    text = re.sub('\*\s([.,:!?)])', '*\\1', text)
 
     text = text.strip()
 
     return text
 
 def parse_outline(outline):
-    html = outline.get_attribute('innerHTML')
+    html = outline.get_attribute('innerHTML').replace('\n', '')
     soup = BeautifulSoup(html, 'html.parser')
 
     rows = soup.find_all('tr')
 
     entries = {}
     for row in rows:
-        paragraphs = row.findChildren('p')
+        numbers = row.find_all('p', { 'class': 'Rechtsb\u00fcndig' })
+        title = row.find('p', { 'class': 'left' })
 
-        try: 
-            nietzsche_number = int(paragraphs[0].text.replace(u'\xa0', '').strip('()'))
+        if not numbers:
+            continue
+
+        nietzsche_number_column = numbers[0]
+
+        try:
+            nietzsche_number = int(nietzsche_number_column.text.replace(u'\xa0', '').strip('()'))
         except:
-            pass
+            continue
 
-        title = paragraphs[1].text if len(paragraphs) > 1 else None
+        book_number = None
+        if len(numbers) == 2:
+            book_number_column = numbers[1]
 
-        if len(paragraphs) > 2:
-            if paragraphs[2].text == 'I':
+            if book_number_column.text == 'I':
                 book_number = 1
-            elif paragraphs[2].text == 'II':
+            elif book_number_column.text == 'II':
                 book_number = 2
-            elif paragraphs[2].text == 'III':
+            elif book_number_column.text == 'III':
                 book_number = 3
-            elif paragraphs[2].text == 'IV':
+            elif book_number_column.text == 'IV':
                 book_number = 4
             else:
                 book_number = None
 
-        if nietzsche_number is not None:
-            entries[nietzsche_number] = {
-                    'title': title,
-                    'book_number': book_number
-                }
+        for tag in title.find_all(True):
+            parse_markdown(tag)
 
-    return entries
+        title = str(title.text)
+
+        # Remove repeated whitespace characters created by markdown parsing.
+        title = re.sub(' +', ' ', title)
+
+        # Remove whitespace between asterisks and certain punctuation marks.
+        title = re.sub('\*\s([.,:!?)])', '*\\1', title)
+
+        title = title.strip()
+
+        entries[nietzsche_number] = {
+            'title': title,
+            'book_number': book_number
+        }
+
+    return(entries)

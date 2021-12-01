@@ -7,6 +7,7 @@ OUTPUT_FILENAME = 'notebooks'
 
 def get_notebooks(notebook_numbers, outline_only=True):
     scraper = NietzscheScraper()
+    outline = parse.parse_outline(scraper.scrape_outline())
 
     notebooks = []
     for number in notebook_numbers:
@@ -15,7 +16,7 @@ def get_notebooks(notebook_numbers, outline_only=True):
         print('Processing texts...')
         texts = []
         for block in blocks:
-            text = parse.all(block)
+            text = parse.all(block, outline)
             if text is not None:
                 texts.append(text)
 
