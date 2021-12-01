@@ -5,7 +5,7 @@ import json
 NOTEBOOKS_TO_EXPORT = [9]
 OUTPUT_FILENAME = 'notebooks'
 
-def get_notebooks(notebook_numbers, outline_only=True):
+def get_notebooks(notebook_numbers):
     scraper = NietzscheScraper()
     outline = parse.parse_outline(scraper.scrape_outline())
 

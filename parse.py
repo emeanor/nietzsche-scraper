@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 import re
 
-def all(block, outline, outline_only=True):
+def all(block, outline):
     nietzsche_number = parse_nietzsche_number(block)
 
-    if outline_only and nietzsche_number is None:
+    if nietzsche_number is None:
         return
 
     kgw_numbers = parse_kgw_numbers(block)
