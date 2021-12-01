@@ -9,7 +9,7 @@ def get_notebooks(notebook_numbers):
     scraper = NietzscheScraper()
     outline = parse.parse_outline(scraper.scrape_outline())
 
-    notebooks = []
+    texts = []
     for number in notebook_numbers:
         blocks = scraper.scrape_notebook(1887, number)
 
@@ -20,17 +20,12 @@ def get_notebooks(notebook_numbers):
             if text is not None:
                 texts.append(text)
 
-        notebooks.append({
-            'notebook_number': number,
-            'texts': texts
-        })
-
-    return(notebooks)
+    return(texts)
 
 
 notebooks = get_notebooks(NOTEBOOKS_TO_EXPORT)
 
 with open(f'{OUTPUT_FILENAME}.json', 'w') as fp:
-    json.dump(notebooks, fp, indent=4)
+    json.dump(notebooks, fp)
 
 print(f'Notebooks {NOTEBOOKS_TO_EXPORT} have been exported to {OUTPUT_FILENAME}.json.')
