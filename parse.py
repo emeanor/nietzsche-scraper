@@ -51,6 +51,16 @@ def parse_markdown(tag):
 
         tag.unwrap()
 
+def clean_string(string):
+    # Remove repeated whitespace characters created by markdown parsing.
+    string = re.sub(' +', ' ', string)
+
+    # Remove whitespace between asterisks and certain punctuation marks.
+    string = re.sub('\*\s([.,:!?)])', '*\\1', string)
+    string = re.sub('([(])\s\*', '\\1*', string)
+
+    return string.strip()
+
 def parse_text(block):
     html = block.get_attribute('innerHTML').replace('\n', '')
     soup = BeautifulSoup(html, 'html.parser')
@@ -73,30 +83,10 @@ def parse_text(block):
 
                 tag.insert_after('\n')
                 tag.unwrap()
-            # Render italics and boldface in Markdown.
-            elif tag.name == 'span':
-                if tag.string and tag.has_attr('class') and 'bold' in tag['class']:
-                    tag.string = tag.string.strip()
-                    tag.insert_before(' *')
-                    tag.insert_after('* ')
-                    tag.unwrap()
-                elif tag.string and tag.has_attr('class') and 'bolditalic' in tag['class']:
-                    tag.string = tag.string.strip()
-                    tag.insert_before(' **')
-                    tag.insert_after('** ')
-                    tag.unwrap()
-                else:
-                    tag.unwrap()
+            else:
+                parse_markdown(tag)
 
-    text = str(soup)
-
-    # Remove repeated whitespace characters created by markdown parsing.
-    text = re.sub(' +', ' ', text)
-
-    # Remove whitespace between asterisks and certain punctuation marks.
-    text = re.sub('\*\s([.,:!?)])', '*\\1', text)
-
-    text = text.strip()
+    text = clean_string(str(soup))
 
     return text
 
@@ -109,11 +99,11 @@ def parse_outline(outline):
     entries = {}
     for row in rows:
         numbers = row.find_all('p', { 'class': 'Rechtsb\u00fcndig' })
-        title = row.find('p', { 'class': 'left' })
 
         if not numbers:
             continue
 
+        # Nietzsche number
         nietzsche_number_column = numbers[0]
 
         try:
@@ -121,6 +111,7 @@ def parse_outline(outline):
         except:
             continue
 
+        # Book number
         book_number = None
         if len(numbers) == 2:
             book_number_column = numbers[1]
@@ -136,18 +127,13 @@ def parse_outline(outline):
             else:
                 book_number = None
 
+        # Title
+        title = row.find('p', { 'class': 'left' })
+
         for tag in title.find_all(True):
             parse_markdown(tag)
 
-        title = str(title.text)
-
-        # Remove repeated whitespace characters created by markdown parsing.
-        title = re.sub(' +', ' ', title)
-
-        # Remove whitespace between asterisks and certain punctuation marks.
-        title = re.sub('\*\s([.,:!?)])', '*\\1', title)
-
-        title = title.strip()
+        title = clean_string(str(title.text))
 
         entries[nietzsche_number] = {
             'title': title,
